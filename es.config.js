@@ -1,0 +1,1 @@
+export const CONFIG_JSON_FILE = "qweqwe";

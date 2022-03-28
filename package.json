@@ -10,7 +10,7 @@
   "author": "GreatBear",
   "license": "ISC",
   "bin": {
-    "CLI": "./bin/cli"
+    "es": "./bin/cli"
   },
   "dependencies": {
     "inquirer": "^4.0.0",

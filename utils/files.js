@@ -2,14 +2,13 @@ const fs = require("fs");
 const path = require('path');
 var debug = require('debug')('app');
 
-
-module.exports = {
+const FileAction = {
     fileTypeList: ['html', 'ts', 'js', 'css', 'less'],
     errorCount: 0,
 
     // 收集指定目录指定类型的所有文件
-    collectFiles(fileType, dirPath = None) {
-        const dir = dirPath || path.resolve(__dirname);
+    collectFiles(fileType, dirPath = null) {
+        const dir = dirPath || path.resolve();
         const fileList = new Map();
         fs.readdirSync(dir).forEach(function (file) {
             var pathname = path.join(dir, file);
@@ -18,7 +17,9 @@ module.exports = {
                 // travel(pathname, callback);
                 return;
             } else {
-                fileList.set('qwe', pathname);
+                if (fileType === FileAction.getFileType(pathname)) {
+                    fileList.set(file, pathname);
+                }
             }
         });
         return fileList;
@@ -26,6 +27,14 @@ module.exports = {
 
     getFileType: function (filePath) {
         return filePath.split('/').pop().split('.').pop();
+    },
+
+    ensureFile: function (filePath, craeteIfNotExisted) {
+        const rlt = fs.existsSync(filePath);
+        if (!rlt && craeteIfNotExisted) {
+            fs.appendFile(filePath, null);
+        }
+        return rlt;
     },
 
     logError(errFilePath, error) {
@@ -37,5 +46,13 @@ module.exports = {
 
     logInfo(info) {
         debug(info);
+    }
+}
+module.exports = {
+    collectFiles(fileType) {
+        return FileAction.collectFiles(fileType);
+    },
+    ensureFile(filePath, craeteIfNotExisted) {
+        return FileAction.ensureFile(filePath, craeteIfNotExisted);
     }
 }
