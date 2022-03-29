@@ -1,6 +1,6 @@
 #!/usr/bin/env node
- //第一行其中#!/usr/bin/env node表示用node解析器执行本文件。
 
+const pkg = require('../package')
 //  命令行接口的完整解决方案，设置一些node命令，如help、usage、version、parse输入的参数
 const program = require('commander')
 
@@ -12,14 +12,22 @@ const ora = require('ora');
 
 // 用户与命令行之间的交互问答工具
 const inquirer = require('inquirer');
-const spinner = ora('Loading undead unicorns');
 
-const Files = require('../utils/files')
+
 /**
  * version
  */
 program
-    .version(chalk.green(`${pkg.version}`))
+    .version(chalk.magenta(`${pkg.version}`))
+
+/**
+ * generate
+ */
+program
+    .command('config <config-path>')
+    .description('设置配置文件地址。Set config file path.')
+    .alias('c')
+    .action(require('./config'))
 
 /**
  * generate
@@ -27,11 +35,8 @@ program
 program
     .command('generate <component-name>')
     .description('generate a component.')
-    // .option('-c, --clone', 'Use git clone when fetching remote template')
-    .action((template, appName, cmd) => {
-        spinner.start('开始下载');
-        spinner.succeed(chalk.green(`下载成功`));
-    })
+    .alias('g')
+    .action(require('./generate'))
 
 program.parse(process.argv)
 
