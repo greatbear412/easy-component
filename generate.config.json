@@ -1,0 +1,73 @@
+{
+    "es-form": {
+        "template": {
+            "tag": "my-form-example",
+            "attrs": [{
+                    "binding": "[form-data]",
+                    "data": "myFormData",
+                    "description": "Adding form-data binding."
+                },
+                {
+                    "binding": "([form-data])",
+                    "data": "myFormData",
+                    "description": "Adding form-data binding."
+                },
+                {
+                    "binding": "(form-value-change)",
+                    "data": "onFormValueChange",
+                    "description": "Adding form value change event binding."
+                }
+            ]
+        },
+        "style": {
+
+        },
+        "script": [{
+            "data": "myData:FormData = {}",
+            "description": "Adding form-data binding.",
+            "insert": "append"
+        }, {
+            "data": "myFormData:FormData = []",
+            "description": "Adding form-data binding.",
+            "insert": "unshift"
+        }, {
+            "data": "() => {console.log(123)}",
+            "description": "Adding form-data binding.",
+            "insert": "append"
+        }]
+    },
+    "react-form": {
+        "template": {
+            "tag": "my-form-example",
+            "attrs": [{
+                    "binding": "[form-data]",
+                    "data": "myFormData",
+                    "description": "Adding form-data binding."
+                },
+                {
+                    "binding": "([form-data])",
+                    "data": "myFormData",
+                    "description": "Adding form-data binding."
+                },
+                {
+                    "binding": "(form-value-change)",
+                    "data": "onFormValueChange",
+                    "description": "Adding form value change event binding."
+                }
+            ]
+        },
+        "script": [{
+            "data": "myData:FormData = {}",
+            "description": "Adding form-data binding.",
+            "insert": "append"
+        }, {
+            "data": "myFormData:FormData = []",
+            "description": "Adding form-data binding.",
+            "insert": "unshift"
+        }, {
+            "data": "() => {console.log(123)}",
+            "description": "Adding form-data binding.",
+            "insert": "append"
+        }]
+    }
+}

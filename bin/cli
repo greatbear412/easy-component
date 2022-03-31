@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+const {
+    env
+} = require('process');
+const path = require("path");
+const fs = require("fs");
 const pkg = require('../package')
 //  命令行接口的完整解决方案，设置一些node命令，如help、usage、version、parse输入的参数
 const program = require('commander')
@@ -7,12 +12,8 @@ const program = require('commander')
 // node终端样式库，可以修改console的输出颜色。
 const chalk = require('chalk')
 
-// ora：终端旋转器，loading小圈圈
-const ora = require('ora');
-
-// 用户与命令行之间的交互问答工具
-const inquirer = require('inquirer');
-
+const FileService = require('../utils/files')
+const ConfigFilePath = path.resolve(__dirname, '../es.config.js');
 
 /**
  * version
@@ -27,6 +28,7 @@ program
     .command('config <config-path>')
     .description('设置配置文件地址。Set config file path.')
     .alias('c')
+    .action(ensureConfig)
     .action(require('./config'))
 
 /**
@@ -36,9 +38,21 @@ program
     .command('generate <component-name>')
     .description('generate a component.')
     .alias('g')
+    .action(ensureConfig)
     .action(require('./generate'))
 
 program.parse(process.argv)
+
+// 检查项目配置文件
+function ensureConfig(params) {
+    if (!FileService.ensureFile(ConfigFilePath)) {
+        spinner.fail(`Easy-Component配置文件${ConfigFilePath}不存在，请去github重新获取。`);
+        return;
+    }
+    const sourceCode = fs.readFileSync(ConfigFilePath).toString();
+    env.CONFIG_CONTENT = sourceCode;
+    env.CONFIG_FILE_PATH = ConfigFilePath;
+}
 
 
 // 模板渲染：handlebars.js
