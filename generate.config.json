@@ -2,39 +2,78 @@
     "es-form": {
         "template": {
             "tag": "my-form-example",
-            "attrs": [{
-                    "binding": "[form-data]",
-                    "data": "myFormData",
+            "attrs": {
+                "default": [{
+                    "data": "(default-form-data)",
+                    "binding": "myFormData",
                     "description": "Adding form-data binding."
-                },
-                {
-                    "binding": "([form-data])",
-                    "data": "myFormData",
+                }],
+                "optional": [{
+                        "data": "[form-data]",
+                        "binding": "myFormData",
+                        "description": "Adding form-data binding."
+                    },
+                    {
+                        "data": "(form-value-change)",
+                        "binding": "onFormValueChange",
+                        "description": "Adding form value change event binding."
+                    }
+                ]
+            }
+        },
+        "script": {
+            "default": [{
+                "data": "defaultData = { a: 123}",
+                "insert": "append"
+            }],
+            "optional": [{
+                "data": "myData:FormData = {}",
+                "insert": "append"
+            }, {
+                "data": "myFormData:FormData = []",
+                "description": "Adding form-data binding.",
+                "insert": "unshift"
+            }]
+        }
+    },
+    "es-form-template": {
+        "template": {
+            "tag": "my-form-example",
+            "attrs": {
+                "default": [{
+                    "data": "(default-form-data)",
+                    "binding": "myFormData",
                     "description": "Adding form-data binding."
-                },
-                {
-                    "binding": "(form-value-change)",
-                    "data": "onFormValueChange",
-                    "description": "Adding form value change event binding."
-                }
-            ]
-        },
-        "style": {
-
-        },
-        "script": [{
-            "data": "myData:FormData = {}",
-            "description": "Adding form-data binding.",
-            "insert": "append"
-        }, {
-            "data": "myFormData:FormData = []",
-            "description": "Adding form-data binding.",
-            "insert": "unshift"
-        }, {
-            "data": "() => {console.log(123)}",
-            "description": "Adding form-data binding.",
-            "insert": "append"
-        }]
+                }],
+                "optional": [{
+                        "data": "[form-data]",
+                        "binding": "myFormData",
+                        "description": "Adding form-data binding."
+                    },
+                    {
+                        "data": "(form-value-change)",
+                        "binding": "onFormValueChange",
+                        "description": "Adding form value change event binding."
+                    }
+                ]
+            }
+        }
+    },
+    "es-form-script": {
+        "script": {
+            "default": [{
+                "data": "defaultData = { a: 123}",
+                "insert": "append"
+            }],
+            "optional": [{
+                "data": "myData:FormData = {}",
+                "insert": "append"
+            }, {
+                "data": "myFormData:FormData = []",
+                "description": "Adding form-data binding.",
+                "insert": "unshift"
+            }]
+        }
     },
     "react-form": {
         "template": {

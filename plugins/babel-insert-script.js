@@ -1,6 +1,7 @@
 const {
     declare
 } = require('@babel/helper-plugin-utils');
+const template = require('@babel/template').default
 
 // TODO: writeHtml
 const babel_insert_script_plugin = (config, parseHtml) => {
@@ -8,18 +9,20 @@ const babel_insert_script_plugin = (config, parseHtml) => {
         api.assertVersion('7');
 
         return {
+            manipulateOptions(options, parserOptions) {
+                parserOptions.plugins.push('jsx');
+                parserOptions.plugins.push('typescript')
+            },
             visitor: {
                 Program: {
                     enter(path, state) {
+                        const optionalList = config.optionalList;
                         switch (config.type) {
                             case 'ts':
                             case 'js':
                                 path.traverse({
                                     'ClassDeclaration'(curPath) {
-                                        config.map(code => {
-                                            const ast = api.template.ast(code.data);
-                                            insert(ast, curPath, code.insert);
-                                        })
+                                        insert(curPath, optionalList)
                                     }
                                 });
                                 break;
@@ -30,13 +33,18 @@ const babel_insert_script_plugin = (config, parseHtml) => {
                                 path.traverse({
                                     'ClassDeclaration'(curPath) {
                                         if (func === curPath.node.id.name) {
+                                            // insert script
+                                            insert(curPath, optionalList)
+
+                                            // inset template
                                             curPath.traverse({
                                                 'ClassMethod'(childPath) {
                                                     if (childPath.node.key.name === 'render') {
-                                                        config.data.map(code => {
-                                                            const ast = api.template.ast(code.data);
-                                                            childPath.insertBefore(ast);
-                                                        })
+                                                        const bodyPath = childPath.get('body');
+                                                        const ast = api.template.statement(`return (${parseHtml} PREV_BODY);`)({
+                                                            PREV_BODY: bodyPath.node
+                                                        });
+                                                        bodyPath.replaceWith(ast);
                                                     }
                                                 }
                                             })
@@ -44,12 +52,15 @@ const babel_insert_script_plugin = (config, parseHtml) => {
                                     },
                                     'FunctionDeclaration'(curPath) {
                                         if (func === curPath.node.id.name) {
+                                            insert(curPath, optionalList)
+
                                             curPath.traverse({
                                                 'ReturnStatement'(childPath) {
-                                                    config.data.map(code => {
-                                                        const ast = api.template.ast(code.data);
-                                                        childPath.insertBefore(ast);
-                                                    })
+                                                    const bodyPath = childPath.get('body');
+                                                    const ast = api.template.statement(`return (${parseHtml} PREV_BODY);`)({
+                                                        PREV_BODY: bodyPath.node
+                                                    });
+                                                    bodyPath.replaceWith(ast);
                                                 }
                                             })
                                         }
@@ -71,12 +82,19 @@ const babel_insert_script_plugin = (config, parseHtml) => {
     })
 }
 
-function insert(ast, path, pos) {
-    if (pos === 'unshift') {
-        path.node.body.body.unshift(ast);
-    } else {
-        path.node.body.body.push(ast);
-    }
+function insert(path, data) {
+    data.map(config => {
+        if (config.data) {
+            const ast = template(config.data)();
+            const pos = config.insert;
+            if (pos === 'unshift') {
+                path.node.body.body.unshift(ast);
+            } else {
+                path.node.body.body.push(ast);
+            }
+        }
+    })
+
 }
 
 module.exports = babel_insert_script_plugin;

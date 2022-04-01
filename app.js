@@ -9,10 +9,10 @@ const {
     env
 } = require('process');
 
-// const plugin = require('./plugins/babel-insert-script')
-const plugin = require('./plugins/babel-get-component')
+const plugin = require('./plugins/babel-insert-script')
+// const plugin = require('./plugins/babel-get-component')
 // const childPath = '/Users/pc/Code/my-babel/app-component/angular/roles.component.ts';
-const childPath = '/Users/pc/Code/my-babel/app-component/react/component.jsx';
+const childPath = '/Users/pc/Code/my-babel/app-component/welcome.tsx';
 const sourceCode = fs.readFileSync(childPath).toString();
 
 // const configList = [{
@@ -28,11 +28,28 @@ const sourceCode = fs.readFileSync(childPath).toString();
 //     "description": "Adding form-data binding.",
 //     "insert": "append"
 // }];
-const configList = [{
-    "data": "myData:FormData = {}",
-    "description": "Adding form-data binding.",
-    "insert": "append"
-}]
+const configList = {
+    path: '/Users/pc/Code/my-babel/app-component/welcome.tsx',
+    type: 'tsx',
+    data: [{
+            data: 'myData:FormData = {}',
+            description: 'Adding form-data binding.',
+            insert: 'append'
+        },
+        {
+            data: 'myFormData:FormData = []',
+            description: 'Adding form-data binding.',
+            insert: 'unshift'
+        },
+        {
+            data: '() => {console.log(123)}',
+            description: 'Adding form-data binding.',
+            insert: 'append'
+        }
+    ],
+    func: 'Welcome'
+}
+const rawHtml = `<my-form-example [form-data]='myFormData' ([form-data])='myFormData' (form-value-change)='onFormValueChange'></my-form-example>`;
 const {
     code
 } = transformSync(sourceCode, {
@@ -41,12 +58,12 @@ const {
             ['decorators', {
                 decoratorsBeforeExport: true
             }],
-            ['typescript'],
-            ['jsx']
+            ['jsx'],
+            ['typescript']
         ]
     },
     plugins: [
-        plugin(configList)
+        plugin(configList, rawHtml)
     ],
     presets: [
         [
@@ -54,7 +71,11 @@ const {
         ]
     ],
     generatorOpts: {
-        decoratorsBeforeExport: true
+        decoratorsBeforeExport: true,
+        plugins: [
+            ['typescript'],
+            ['jsx']
+        ]
     },
     sourceType: 'unambiguous'
 });
