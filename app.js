@@ -12,7 +12,7 @@ const {
 const plugin = require('./plugins/babel-insert-script')
 // const plugin = require('./plugins/babel-get-component')
 // const childPath = '/Users/pc/Code/my-babel/app-component/angular/roles.component.ts';
-const childPath = '/Users/pc/Code/my-babel/app-component/welcome.tsx';
+const childPath = '/Users/pc/Code/my-babel/app-component/react-class-test.tsx';
 const sourceCode = fs.readFileSync(childPath).toString();
 
 // const configList = [{
@@ -31,7 +31,7 @@ const sourceCode = fs.readFileSync(childPath).toString();
 const configList = {
     path: '/Users/pc/Code/my-babel/app-component/welcome.tsx',
     type: 'tsx',
-    data: [{
+    optionalList: [{
             data: 'myData:FormData = {}',
             description: 'Adding form-data binding.',
             insert: 'append'
@@ -47,9 +47,24 @@ const configList = {
             insert: 'append'
         }
     ],
-    func: 'Welcome'
+    func: 'ProfilePage'
 }
-const rawHtml = `<my-form-example [form-data]='myFormData' ([form-data])='myFormData' (form-value-change)='onFormValueChange'></my-form-example>`;
+// const rawHtml = `<my-form-example [form-data]='myFormData' ([form-data])='myFormData' (form-value-change)='onFormValueChange'></my-form-example>`;
+
+const rawHtml = {
+    "tag": "my-form-example",
+    "attrs": [{
+            "data": "formData",
+            "binding": "[myFormData]",
+            "description": "Adding form-data binding?"
+        },
+        {
+            "data": "formValueChange",
+            "binding": "(onFormValueChange)",
+            "description": "Adding form value change event binding?"
+        }
+    ]
+}
 const {
     code
 } = transformSync(sourceCode, {
@@ -80,22 +95,9 @@ const {
     sourceType: 'unambiguous'
 });
 
-fs.writeFileSync('/Users/pc/Code/my-babel/app-component/test.ts', code);
+fs.writeFileSync('/Users/pc/Code/my-babel/app-component/test.tsx', code);
 
-// const rawHtml = {
-//     "tag": "my-form-example",
-//     "attrs": [{
-//             "binding": "[form-data]",
-//             "data": "myFormData",
-//             "description": "Adding form-data binding?"
-//         },
-//         {
-//             "binding": "(form-value-change)",
-//             "data": "onFormValueChange",
-//             "description": "Adding form value change event binding?"
-//         }
-//     ]
-// }
+
 // parseHTML(rawHtml);
 
 

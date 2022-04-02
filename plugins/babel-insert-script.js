@@ -2,27 +2,28 @@ const {
     declare
 } = require('@babel/helper-plugin-utils');
 const template = require('@babel/template').default
+const t = require('@babel/types');
 
-// TODO: writeHtml
-const babel_insert_script_plugin = (config, parseHtml) => {
+const babel_insert_script_plugin = (config, parseHtmlData) => {
     return declare((api, option, dirname) => {
         api.assertVersion('7');
 
         return {
             manipulateOptions(options, parserOptions) {
                 parserOptions.plugins.push('jsx');
-                parserOptions.plugins.push('typescript')
             },
             visitor: {
                 Program: {
                     enter(path, state) {
-                        const optionalList = config.optionalList;
+                        state.script = false;
+                        state.template = !!!parseHtmlData.tag;
+                        const scriptList = config.optionalList;
                         switch (config.type) {
                             case 'ts':
                             case 'js':
                                 path.traverse({
                                     'ClassDeclaration'(curPath) {
-                                        insert(curPath, optionalList)
+                                        insertScript(curPath, scriptList)
                                     }
                                 });
                                 break;
@@ -33,36 +34,46 @@ const babel_insert_script_plugin = (config, parseHtml) => {
                                 path.traverse({
                                     'ClassDeclaration'(curPath) {
                                         if (func === curPath.node.id.name) {
-                                            // insert script
-                                            insert(curPath, optionalList)
-
-                                            // inset template
-                                            curPath.traverse({
-                                                'ClassMethod'(childPath) {
-                                                    if (childPath.node.key.name === 'render') {
-                                                        const bodyPath = childPath.get('body');
-                                                        const ast = api.template.statement(`return (${parseHtml} PREV_BODY);`)({
-                                                            PREV_BODY: bodyPath.node
-                                                        });
-                                                        bodyPath.replaceWith(ast);
+                                            // insert template
+                                            if (parseHtmlData.tag) {
+                                                // Make sure render() exists
+                                                let renderPath = null;
+                                                curPath.traverse({
+                                                    'ClassMethod'(childPath) {
+                                                        if (childPath.node.key.name === 'render') {
+                                                            renderPath = childPath;
+                                                        }
                                                     }
+                                                })
+                                                // If not exist, create new render() function
+                                                if (!renderPath) {
+                                                    const render = t.classMethod(
+                                                        'method', 
+                                                        t.identifier('render'),
+                                                        [],
+                                                        t.blockStatement([])
+                                                    );
+                                                    renderPath = curPath.get('body').pushContainer('body', render)[0];
                                                 }
-                                            })
+
+                                                // insert template
+                                                const parseJsxELement = getParseJsxElement(parseHtmlData);
+                                                inserParsedtJsxElement(renderPath, parseJsxELement);
+                                            }
+                                            // insert script
+                                            insertScript(curPath, scriptList);
+                                            curPath.skip();
                                         }
                                     },
+
                                     'FunctionDeclaration'(curPath) {
                                         if (func === curPath.node.id.name) {
-                                            insert(curPath, optionalList)
-
-                                            curPath.traverse({
-                                                'ReturnStatement'(childPath) {
-                                                    const bodyPath = childPath.get('body');
-                                                    const ast = api.template.statement(`return (${parseHtml} PREV_BODY);`)({
-                                                        PREV_BODY: bodyPath.node
-                                                    });
-                                                    bodyPath.replaceWith(ast);
-                                                }
-                                            })
+                                            if (parseHtmlData.tag) {
+                                                const parseJsxELement = getParseJsxElement(parseHtmlData);
+                                                inserParsedtJsxElement(curPath, parseJsxELement);
+                                            }
+                                            insertScript(curPath, scriptList);
+                                            curPath.skip();
                                         }
                                     }
                                 });
@@ -82,7 +93,50 @@ const babel_insert_script_plugin = (config, parseHtml) => {
     })
 }
 
-function insert(path, data) {
+function getParseJsxElement(parseHtmlData) {
+    const {
+        tag,
+        attrs
+    } = parseHtmlData;
+
+    const JSXAttrs = attrs ? attrs.map(attr => {
+        return t.jsxAttribute(t.JSXIdentifier(attr.data), t.stringLiteral(attr.binding))
+    }) : [];
+    return t.JSXElement(
+        t.jsxOpeningElement(t.JSXIdentifier(tag), JSXAttrs),
+        t.jsxClosingElement(t.JSXIdentifier(tag)),
+        []
+    )
+}
+
+function inserParsedtJsxElement(curPath, parseJsxELement) {
+    let state = false;
+    curPath.traverse({
+        'ReturnStatement'(returnPath) {
+            returnPath.traverse({
+                // "Return" statement contains jsx element
+                'JSXElement'(jsxPath) {
+                    jsxPath.node.children.push(parseJsxELement);
+                    state = true;
+                    jsxPath.skip();
+                }
+            })
+            // "Return" statement doesn't contain jsx element / is null 
+            if (!state) {
+                returnPath.node.argument = parseJsxELement;
+                state = true;
+                returnPath.skip();
+            }
+        },
+    })
+    // No Return statement
+    if (state === false) {
+        const returnNode = t.returnStatement(parseJsxELement);
+        curPath.get('body').node.body.push(returnNode);
+    }
+}
+
+function insertScript(path, data) {
     data.map(config => {
         if (config.data) {
             const ast = template(config.data)();

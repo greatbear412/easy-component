@@ -52,18 +52,18 @@ module.exports = async (component) => {
         }
 
         // Generation confirm: Confirm which code to insert
-        if (template.config) {
+        if (template.config && template.config.tag && template.config.attrs) {
                 template.optionalList = await confirmOptionalList(template.config.attrs, 'template');
         }
         script.optionalList = await confirmOptionalList(script.config, 'script');
 
-        const separate = !(script.type in ['jsx', 'tsx', 'vue']);
+        const separate = !(['jsx', 'tsx', 'vue'].includes(script.type));
         console.log();
 
         // Component confirm: Confirm which component to work with for React/Vue.
         if (!separate) {
                 const code = fs.readFileSync(script.path);
-                script.func = (await getComponentsForReact(code)).func
+                script.func = (await getComponentsToWorkWith(code)).func
         }
 
         console.log();
@@ -75,7 +75,11 @@ module.exports = async (component) => {
         // In Angular, template and script are in different files.
         // But in react/vue, they are in the same file, so you can 
         // insert both of them in one parsing action.
-        script.parse(template.result);
+        const templateDataForJsxElement = {
+                tag: template.config?.tag,
+                attrs: template.optionalList
+        }
+        script.parse(templateDataForJsxElement);
 
         // generate
         script.generate();
@@ -132,8 +136,13 @@ class Script extends GenerateObject {
                 this.type = type;
         }
 
-        parse(parseHtml) {
+        parse(parseHtmlData) {
                 if (!checkPath(this.path) || this.config == null) return;
+                const parseScriptData = {
+                        type: this.type,
+                        func: this.func,
+                        optionalList: this.optionalList
+                };
                 const sourceCode = fs.readFileSync(this.path);
                 const {
                         code
@@ -148,11 +157,7 @@ class Script extends GenerateObject {
                                 ]
                         },
                         plugins: [
-                                insertPlugin({
-                                        type: this.type,
-                                        func: this.func,
-                                        optionalList: this.optionalList
-                                }, parseHtml)
+                                insertPlugin(parseScriptData, parseHtmlData)
                         ],
                         generatorOpts: {
                                 decoratorsBeforeExport: true
@@ -205,7 +210,7 @@ function addAttr(data, binding) {
         return ` ${data}='${binding}'`
 }
 
-function getComponentsForReact(sourceCode) {
+function getComponentsToWorkWith(sourceCode) {
         const componentList = [];
         transformSync(sourceCode, {
                 parserOpts: {

@@ -78,35 +78,34 @@
     "react-form": {
         "template": {
             "tag": "my-form-example",
-            "attrs": [{
-                    "binding": "[form-data]",
-                    "data": "myFormData",
-                    "description": "Adding form-data binding."
-                },
-                {
-                    "binding": "([form-data])",
-                    "data": "myFormData",
-                    "description": "Adding form-data binding."
-                },
-                {
-                    "binding": "(form-value-change)",
-                    "data": "onFormValueChange",
-                    "description": "Adding form value change event binding."
-                }
-            ]
+            "attrs": {
+                "optional": [{
+                        "data": "formData",
+                        "binding": "{myFormData}",
+                        "description": "Adding form-data binding."
+                    },
+                    {
+                        "data": "onClick",
+                        "binding": "{onButtonClick}",
+                        "description": "Adding form-data binding."
+                    }
+                ]
+            }
         },
-        "script": [{
-            "data": "myData:FormData = {}",
-            "description": "Adding form-data binding.",
-            "insert": "append"
-        }, {
-            "data": "myFormData:FormData = []",
-            "description": "Adding form-data binding.",
-            "insert": "unshift"
-        }, {
-            "data": "() => {console.log(123)}",
-            "description": "Adding form-data binding.",
-            "insert": "append"
-        }]
+        "script": {
+            "optional": [{
+                "data": "myData:FormData = {}",
+                "description": "Adding form-data binding.",
+                "insert": "append"
+            }, {
+                "data": "myFormData:FormData = []",
+                "description": "Adding form-data binding.",
+                "insert": "unshift"
+            }, {
+                "data": "() => {console.log(123)}",
+                "description": "Adding form-data binding.",
+                "insert": "append"
+            }]
+        }
     }
 }
