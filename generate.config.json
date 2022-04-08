@@ -1,0 +1,79 @@
+{
+    "es-form": {
+        "description": "es-form 组件描述",
+        "template": {
+            "tag": "my-form-example",
+            "attrs": {
+                "default": [{
+                    "data": "(default-form-data)",
+                    "binding": "myFormData",
+                    "description": "Adding form-data binding."
+                }],
+                "optional": [{
+                        "data": "[form-data]",
+                        "binding": "myFormData",
+                        "description": "Adding form-data binding."
+                    },
+                    {
+                        "data": "(form-value-change)",
+                        "binding": "onFormValueChange",
+                        "description": "Adding form value change event binding."
+                    }
+                ]
+            }
+        },
+        "script": {
+            "default": [{
+                "data": "defaultData = { a: 123}",
+                "insert": "append"
+            }],
+            "optional": [{
+                "data": "myData:FormData = {}",
+                "insert": "append"
+            }, {
+                "data": "myFormData:FormData = []",
+                "description": "Adding form-data binding.",
+                "insert": "unshift"
+            }]
+        }
+    },
+    "es-form-template": {
+        "template": {
+            "tag": "my-form-example",
+            "attrs": {
+                "default": [{
+                    "data": "(default-form-data)",
+                    "binding": "myFormData",
+                    "description": "Adding form-data binding."
+                }],
+                "optional": [{
+                        "data": "[form-data]",
+                        "binding": "myFormData",
+                        "description": "Adding form-data binding."
+                    },
+                    {
+                        "data": "(form-value-change)",
+                        "binding": "onFormValueChange",
+                        "description": "Adding form value change event binding."
+                    }
+                ]
+            }
+        }
+    },
+    "es-form-script": {
+        "script": {
+            "default": [{
+                "data": "defaultData = { a: 123}",
+                "insert": "append"
+            }],
+            "optional": [{
+                "data": "myData:FormData = {}",
+                "insert": "append"
+            }, {
+                "data": "myFormData:FormData = []",
+                "description": "Adding form-data binding.",
+                "insert": "unshift"
+            }]
+        }
+    }
+}

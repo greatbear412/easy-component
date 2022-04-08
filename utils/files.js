@@ -17,7 +17,7 @@ const FileAction = {
                 // travel(pathname, callback);
                 return;
             } else {
-                if (fileType === FileAction.getFileType(pathname)) {
+                if (fileType === FileAction.getFileType(pathname) || fileType === '*') {
                     fileList.set(file, pathname);
                 }
             }
@@ -54,5 +54,8 @@ module.exports = {
     },
     ensureFile(filePath, craeteIfNotExisted) {
         return FileAction.ensureFile(filePath, craeteIfNotExisted);
+    },
+    getFileType(filePath) {
+        return FileAction.getFileType(filePath);
     }
 }
