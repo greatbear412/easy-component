@@ -25,9 +25,10 @@ program
  * generate
  */
 program
-    .command('config <config-path>')
-    .description('设置配置文件地址。Set config file path.')
+    .command('config')
+    .description('查看配置文件地址。Check config file path.')
     .alias('c')
+    .option('-p, --path <path>', '设置配置文件地址。Set config file path.')
     .action(ensureConfig)
     .action(require('./config'))
 
@@ -36,10 +37,23 @@ program
  */
 program
     .command('generate <component-name>')
-    .description('generate a component.')
+    .description('生成组件。Generate a component.')
     .alias('g')
+    .option('-y, --yes', '添加全部可选项。 Add all options.')
     .action(ensureConfig)
     .action(require('./generate'))
+
+
+/**
+ * list
+ */
+ program
+ .command('list')
+ .description('查看所有组件。List all components.')
+ .alias('l')
+ .action(ensureConfig)
+ .action(require('./list'))
+
 
 program.parse(process.argv)
 

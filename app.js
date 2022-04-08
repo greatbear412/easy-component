@@ -12,7 +12,7 @@ const {
 const plugin = require('./plugins/babel-insert-script')
 // const plugin = require('./plugins/babel-get-component')
 // const childPath = '/Users/pc/Code/my-babel/app-component/angular/roles.component.ts';
-const childPath = '/Users/pc/Code/my-babel/app-component/react-class-test.tsx';
+const childPath = '/Users/pc/Code/my-babel/app-component/vue.vue';
 const sourceCode = fs.readFileSync(childPath).toString();
 
 // const configList = [{
@@ -89,7 +89,7 @@ const {
         decoratorsBeforeExport: true,
         plugins: [
             ['typescript'],
-            ['jsx']
+            ['vue']
         ]
     },
     sourceType: 'unambiguous'

@@ -21,12 +21,12 @@ const getComponentPlugin = require('../plugins/babel-get-component')
  * 3. 生成js
  * @param {*} component 组件名
  */
-module.exports = async (component) => {
+module.exports = async (component, opts) => {
         spinner.start('读取配置文件');
         // read config
         const configPath = require(env.CONFIG_FILE_PATH);
         if (!FileService.ensureFile(configPath)) {
-                spinner.fail(`文件${configPath}不存在。`);
+                spinner.fail(`配置文件${configPath}不存在。`);
                 return;
         }
         const configAll = JSON.parse(fs.readFileSync(configPath).toString());
@@ -53,9 +53,9 @@ module.exports = async (component) => {
 
         // Generation confirm: Confirm which code to insert
         if (template.config && template.config.tag && template.config.attrs) {
-                template.optionalList = await confirmOptionalList(template.config.attrs, 'template');
+                template.optionalList = await confirmOptionalList(template.config.attrs, 'template', opts.yes);
         }
-        script.optionalList = await confirmOptionalList(script.config, 'script');
+        script.optionalList = await confirmOptionalList(script.config, 'script', opts.yes);
 
         const separate = !(['jsx', 'tsx', 'vue'].includes(script.type));
         console.log();
@@ -244,15 +244,19 @@ function getComponentsToWorkWith(sourceCode) {
         }
 }
 
-async function confirmOptionalList(attrs, type) {
+async function confirmOptionalList(attrs, type, y) {
         let optionalList = [];
         if (attrs && attrs.default && Array.isArray(attrs.default)) {
                 optionalList.push(...attrs.default);
         }
         if (attrs && attrs.optional && Array.isArray(attrs.optional)) {
-                chalk.green(console.log(`配置${type}可选项：`));
-                const indexList = await confirmGenerateConfig(attrs.optional);
-                optionalList.push(...attrs.optional.filter((_, i) => indexList[i]));
+                if(y) {
+                        optionalList.push(...attrs.optional);
+                } else {
+                        chalk.green(console.log(`配置${type}可选项：`));
+                        const indexList = await confirmGenerateConfig(attrs.optional);
+                        optionalList.push(...attrs.optional.filter((_, i) => indexList[i]));        
+                }
         }
         return optionalList;
 }
