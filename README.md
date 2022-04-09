@@ -64,3 +64,6 @@
 ```
 # Support
 Angular，React
+
+# Requirement
+node >= 14.0.0
