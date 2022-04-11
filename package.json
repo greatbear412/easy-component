@@ -12,6 +12,10 @@
   "bin": {
     "es": "./bin/cli"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/greatbear412/easy-component"
+  },
   "dependencies": {
     "@babel/cli": "^7.17.6",
     "@babel/code-frame": "^7.14.5",
